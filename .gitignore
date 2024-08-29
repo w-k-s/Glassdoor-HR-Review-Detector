@@ -1,0 +1,5 @@
+.venv
+.ipynb_checkpoints
+training-data/**
+!training-data/.gitkeep
+!training-data/glassdoor-reviews-*.csv
