@@ -29,7 +29,7 @@ My (likely to fail) attempt at building an AI that can detect if a glassdoor rev
 1. Start the runbook
 
     ```shell
-    .venv/bin/jupyter notebook
+    OPENAI_API_KEY=*** .venv/bin/jupyter notebook
     ```
 
 ## DataSets
