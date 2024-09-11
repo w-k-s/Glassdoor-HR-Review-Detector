@@ -17,7 +17,7 @@ def extract_reviews_from_html_files():
         for review in reviews:
             reviews_data.append(
                 {
-                    "id": review.parent.get("id"),
+                    "empReview_id": review.parent.get("id"),
                     "date": review.find(
                         "span", class_="timestamp_reviewDate__wvu2v"
                     ).text,

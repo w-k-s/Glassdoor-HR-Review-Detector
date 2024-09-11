@@ -1,4 +1,4 @@
-id,date,overall_rating,pros,cons,sounds_like_hr
+empReview_id,date,overall_rating,pros,cons,sounds_like_hr
 empReview_17495196,"Oct 23, 2017",4.0,Great growth and great people.,"As in every startup, things tend to be unstructured",1
 empReview_39824426,"Dec 27, 2020",4.0,Used to be great culture now there is none,Management let go people without an ounce of knowledge,0
 empReview_53053107,"Sep 24, 2021",3.0,"Competitive packages, good work environment","No work life balance, rotational shifts",0
