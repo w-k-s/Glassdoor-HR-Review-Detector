@@ -3,3 +3,5 @@
 training-data/**
 !training-data/.gitkeep
 **/__pycache__/**
+build/*
+!build/Dockerfile

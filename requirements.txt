@@ -20,6 +20,8 @@ backoff==2.2.1
 bcrypt==4.2.0
 beautifulsoup4==4.12.3
 bleach==6.1.0
+boto3==1.35.29
+botocore==1.35.29
 build==1.2.1
 cachetools==5.5.0
 certifi==2024.7.4
@@ -74,6 +76,7 @@ isoduration==20.11.0
 jedi==0.19.1
 Jinja2==3.1.4
 jiter==0.5.0
+jmespath==1.0.1
 joblib==1.4.2
 json5==0.9.25
 jsonpatch==1.33
@@ -182,6 +185,8 @@ rfc3986-validator==0.1.1
 rich==13.8.0
 rpds-py==0.20.0
 rsa==4.9
+s3fs==0.4.2
+s3transfer==0.10.2
 scikit-learn==1.5.1
 scipy==1.14.1
 Send2Trash==1.8.3
