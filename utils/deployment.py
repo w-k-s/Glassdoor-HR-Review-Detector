@@ -24,5 +24,5 @@ def upload_model_version_to_s3(model_name,local_path):
         s3_file.put(local_path, s3_path, recursive=True) 
     
         return (s3_path,new_version)
-    except Excetpion as e:
+    except Exception as e:
         print(f"Failed to upload model '{model_name}' to s3. {e}")
