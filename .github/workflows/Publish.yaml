@@ -1,4 +1,4 @@
-name: Publish
+name: Publish Inference Server
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: build
+        working-directory: model/build
 
     steps:
       - name: Checkout
