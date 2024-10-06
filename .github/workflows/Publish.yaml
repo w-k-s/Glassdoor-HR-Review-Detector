@@ -1,0 +1,59 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: The Model Version
+        required: true
+        default: "1"
+
+env:
+  MODEL_BUCKET_NAME: glassdoor-hr-review-detector/models
+  DOCKERHUB_REPOSITORY: glassdoor-hr-review-detector
+  DOCKERHUB_NAMESPACE: wkas
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Download Model From S3
+        run: |
+          aws s3 sync s3://${{ env.MODEL_BUCKET_NAME }}/${{ github.event.inputs.version }} ${{ env.MODEL_BUCKET_NAME }}/${{ github.event.inputs.version }}
+
+      - name: Print Folder Tree
+        uses: jaywcjlove/github-action-folder-tree@main
+        with:
+          depth: 4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set IMAGE_TAG environment variable
+        run: echo "IMAGE_TAG=$DOCKERHUB_NAMESPACE/$DOCKERHUB_REPOSITORY:${{ github.event.inputs.version }}" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        run: |
+          docker buildx build -t "$IMAGE_TAG" .
+
+      - name: Push Image to Docker Hub
+        run: |
+          docker push "$IMAGE_TAG"
