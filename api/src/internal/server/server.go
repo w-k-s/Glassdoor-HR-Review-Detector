@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"com.github/w-k-s/glassdoor-hr-review-detector/internal"
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal/embedding"
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal/inferrence"
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/services"
@@ -17,7 +18,7 @@ type Server struct{
 }
 
 func NewServer(listenAddress string) *Server{
-	embeddingService := embedding.MustOpenAIEmbeddingService(os.Getenv("OPENAI_API_KEY"))
+	embeddingService := embedding.MustOpenAIEmbeddingService(os.Getenv("OPENAI_API_KEY"),internal.LocalCache())
 	inferenceService := inferrence.MustInferenceService(embeddingService)
 	return &Server{
 		listenAddress: listenAddress,
