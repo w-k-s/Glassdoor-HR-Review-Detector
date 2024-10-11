@@ -41,9 +41,9 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 			if embedding,ok := untypedEmbedding.([]float64); ok{
 				embeddingMap[input] = embedding
 			}
+		}else{
+			newInputs = append(newInputs,input)
 		}
-		
-		newInputs = append(newInputs,input)
 	}
 
 	// Fetch embeddings for remaining items

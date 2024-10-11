@@ -80,6 +80,7 @@ func (svc inferenceService) GetGenuity(ctx context.Context,reviews []types.Revie
         return nil, fmt.Errorf("failed to read response body: %w", err)
     }
 
+	log.Print(string(body))
     var predResp predictionResponse
     err = json.Unmarshal(body, &predResp)
     if err != nil {
