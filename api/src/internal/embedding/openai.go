@@ -3,6 +3,7 @@ package embedding
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal"
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/services"
@@ -47,6 +48,8 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 
 	// Fetch embeddings for remaining items
 	if len(newInputs) > 0{
+		log.Printf("fetching embeddings for %d new inputs", len(newInputs))
+
 		createEmbeddingResponse, err := svc.client.Embeddings.New(ctx, openai.EmbeddingNewParams{
 			Input:          openai.F[openai.EmbeddingNewParamsInputUnion](openai.EmbeddingNewParamsInputArrayOfStrings(newInputs)),
 			Model:          openai.F(openai.EmbeddingModelTextEmbedding3Small),
@@ -70,12 +73,12 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 		}
 	}
 	
-	embeddings := make([][]float64,len(inputs))
-	for _,input := range(inputs){
-		if embedding,ok := embeddingMap[input];ok{
-			embeddings = append(embeddings, embedding)
+	embeddings := make([][]float64, len(inputs))
+    for i, d := range inputs {
+		if embedding,ok := embeddingMap[d];ok{
+			embeddings[i] = embedding
 		}
-	}
+    }
 
 	return embeddings,nil
 }
