@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal"
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/services"
@@ -12,43 +13,55 @@ import (
 )
 
 type openaiEmbeddingService struct {
-	client *openai.Client
-	cache internal.Cache
+	client           *openai.Client
+	cache            internal.Cache
+	inflightRequests map[string]chan bool
 }
 
 func MustOpenAIEmbeddingService(apiKey string, cache internal.Cache) services.EmbeddingsService {
 	client := openai.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-	
+
 	return &openaiEmbeddingService{
-		client: client,
-		cache: cache,
+		client:           client,
+		cache:            cache,
+		inflightRequests: make(map[string]chan bool),
 	}
 }
 
 func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []string, dimensions int) ([][]float64, error) {
-	
-	// Create Embedding Map
-	embeddingMap := make(map[string][]float64)
-	newInputs := make([]string,0)
 
-	for i,input := range inputs {
-		if len(input) == 0{
-			return nil,fmt.Errorf("input can not contain empty string. %d in %q", i,inputs)
+	embeddingMap := make(map[string][]float64)
+	newInputs := make([]string, 0)
+
+	for i, input := range inputs {
+		if len(input) == 0 {
+			return nil, fmt.Errorf("input can not contain empty string. %d in %q", i, inputs)
 		}
-		if untypedEmbedding,ok := svc.cache.Get(input);ok{
-			if embedding,ok := untypedEmbedding.([]float64); ok{
+
+		// To avoid sending multiple concurrent requests for the same inputs.
+		if c, ok := svc.inflightRequests[input]; ok {
+			waitForInlfightEmbedding(c)
+		}
+
+		if untypedEmbedding, ok := svc.cache.Get(input); ok {
+			if embedding, ok := untypedEmbedding.([]float64); ok {
 				embeddingMap[input] = embedding
 			}
-		}else{
-			newInputs = append(newInputs,input)
+		} else {
+			newInputs = append(newInputs, input)
 		}
 	}
 
 	// Fetch embeddings for remaining items
-	if len(newInputs) > 0{
+	if len(newInputs) > 0 {
 		log.Printf("fetching embeddings for %d new inputs", len(newInputs))
+
+		c := make(chan bool)
+		for _, newInput := range newInputs {
+			svc.inflightRequests[newInput] = c
+		}
 
 		createEmbeddingResponse, err := svc.client.Embeddings.New(ctx, openai.EmbeddingNewParams{
 			Input:          openai.F[openai.EmbeddingNewParamsInputUnion](openai.EmbeddingNewParamsInputArrayOfStrings(newInputs)),
@@ -59,26 +72,42 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 		if err != nil {
 			return nil, fmt.Errorf("failed to get embedding for inputs: %w", err)
 		}
-	
+
 		data := createEmbeddingResponse.Data
 
-		if len(data) != len(newInputs){
+		if len(data) != len(newInputs) {
 			return nil, fmt.Errorf("unexpected: the number of embeddings returned does not match the number of inputs")
 		}
 
-		for i, newInput := range(newInputs){
+		for i, newInput := range newInputs {
 			embedding := data[i].Embedding
 			svc.cache.Set(newInput, embedding)
 			embeddingMap[newInput] = embedding
 		}
+
+		close(c)
 	}
-	
+
 	embeddings := make([][]float64, len(inputs))
-    for i, d := range inputs {
-		if embedding,ok := embeddingMap[d];ok{
+	for i, d := range inputs {
+		if embedding, ok := embeddingMap[d]; ok {
 			embeddings[i] = embedding
 		}
-    }
+	}
 
-	return embeddings,nil
+	return embeddings, nil
+}
+
+func waitForInlfightEmbedding(c chan bool) {
+	timeout := time.After(30 * time.Second)
+
+	for {
+		select {
+		case <-c:
+			return
+		case <-timeout:
+			log.Printf("Timeout")
+			return
+		}
+	}
 }
