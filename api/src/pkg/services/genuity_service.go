@@ -10,7 +10,7 @@ import (
 
 type GenuityService interface {
 	CheckReviewGenuity(ctx context.Context, req types.CheckReviewsGenuityRequest) (types.CheckReviewsGenuityResponse, error)
-	SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) (error)
+	SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error
 }
 
 type genuityService struct {
@@ -21,22 +21,22 @@ func MustGenuityService(inferenceService InferenceService) GenuityService {
 	if inferenceService == nil {
 		log.Panic("Embedding Service is nil")
 	}
-	
+
 	return &genuityService{
 		inferenceService: inferenceService,
 	}
 }
 
 func (svc genuityService) CheckReviewGenuity(ctx context.Context, req types.CheckReviewsGenuityRequest) (types.CheckReviewsGenuityResponse, error) {
-	
+
 	genuityResult, err := svc.inferenceService.GetGenuity(ctx, req.Reviews)
-	if err != nil{
-		return types.CheckReviewsGenuityResponse{},fmt.Errorf("inference Request Faield: %w", err)
+	if err != nil {
+		return types.CheckReviewsGenuityResponse{}, fmt.Errorf("inference Request Faield: %w", err)
 	}
 
-	return types.CheckReviewsGenuityResponse{Results: genuityResult},nil
+	return types.CheckReviewsGenuityResponse{Results: genuityResult}, nil
 }
 
-func (svc genuityService) SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error{
+func (svc genuityService) SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error {
 	return fmt.Errorf("TODO")
 }

@@ -1,0 +1,10 @@
+{
+    "reviews": [
+        {
+            "id": "test1",
+            "rating": 3.0,
+            "pros": "Competitive packages, good work environment",
+            "cons": "No work life balance, rotational shifts"
+        }
+    ]
+}

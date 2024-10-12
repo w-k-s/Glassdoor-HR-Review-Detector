@@ -1,0 +1,1 @@
+ab -c 5 -n 50 -s 90 -v 2 -T 'application/json' -p payload.json http://localhost:3000/api/reviews/genuity-check

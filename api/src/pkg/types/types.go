@@ -16,20 +16,20 @@ type CheckReviewsGenuityResponse struct {
 }
 
 type GenuityResult struct {
-	ReviewID      string  `json:"reviewId"`
-	IsGenuine     bool    `json:"isGenuine"`
+	ReviewID  string `json:"reviewId"`
+	IsGenuine bool   `json:"isGenuine"`
 }
 
 type SubmitGenuityFeedbackRequest struct {
-    ReviewID string           `json:"reviewId"`
-    Original OriginalGenuity  `json:"original"`
-    Feedback UserFeedback     `json:"feedback"`
+	ReviewID string          `json:"reviewId"`
+	Original OriginalGenuity `json:"original"`
+	Feedback UserFeedback    `json:"feedback"`
 }
 
 type OriginalGenuity struct {
-    IsGenuine bool `json:"isGenuine"`
+	IsGenuine bool `json:"isGenuine"`
 }
 
 type UserFeedback struct {
-    IsGenuine bool `json:"isGenuine"`
+	IsGenuine bool `json:"isGenuine"`
 }
