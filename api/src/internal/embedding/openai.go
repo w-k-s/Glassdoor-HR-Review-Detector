@@ -58,9 +58,9 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 	if len(newInputs) > 0 {
 		log.Printf("fetching embeddings for %d new inputs", len(newInputs))
 
-		c := make(chan bool)
+		done := make(chan bool)
 		for _, newInput := range newInputs {
-			svc.inflightRequests[newInput] = c
+			svc.inflightRequests[newInput] = done
 		}
 
 		createEmbeddingResponse, err := svc.client.Embeddings.New(ctx, openai.EmbeddingNewParams{
@@ -85,7 +85,7 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 			embeddingMap[newInput] = embedding
 		}
 
-		close(c)
+		close(done)
 	}
 
 	embeddings := make([][]float64, len(inputs))
@@ -98,12 +98,12 @@ func (svc openaiEmbeddingService) GetEmbeddings(ctx context.Context, inputs []st
 	return embeddings, nil
 }
 
-func waitForInlfightEmbedding(c chan bool) {
+func waitForInlfightEmbedding(done <-chan bool) {
 	timeout := time.After(30 * time.Second)
 
 	for {
 		select {
-		case <-c:
+		case <-done:
 			return
 		case <-timeout:
 			log.Printf("Timeout")
