@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"log"
 
+	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/dao"
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/types"
 )
 
 type GenuityService interface {
 	CheckReviewGenuity(ctx context.Context, req types.CheckReviewsGenuityRequest) (types.CheckReviewsGenuityResponse, error)
-	SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error
+	SubmitGenuityFeedback(ctx context.Context, dao dao.FeedbackDao, req types.SubmitGenuityFeedbackRequest) error
 }
 
 type genuityService struct {
 	inferenceService InferenceService
 }
 
-func MustGenuityService(inferenceService InferenceService) GenuityService {
+func MustGenuityService(
+	inferenceService InferenceService,
+) GenuityService {
 	if inferenceService == nil {
 		log.Panic("Embedding Service is nil")
 	}
@@ -37,6 +40,6 @@ func (svc genuityService) CheckReviewGenuity(ctx context.Context, req types.Chec
 	return types.CheckReviewsGenuityResponse{Results: genuityResult}, nil
 }
 
-func (svc genuityService) SubmitGenuityFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error {
-	return fmt.Errorf("TODO")
+func (svc genuityService) SubmitGenuityFeedback(ctx context.Context, dao dao.FeedbackDao, req types.SubmitGenuityFeedbackRequest) error {
+	return dao.SaveFeedback(ctx, req)
 }

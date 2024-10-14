@@ -21,7 +21,10 @@ type GenuityResult struct {
 }
 
 type SubmitGenuityFeedbackRequest struct {
+	UserID   string          `json:"userId"`
 	ReviewID string          `json:"reviewId"`
+	Pros     string          `json:"pros"`
+	Cons     string          `json:"cons"`
 	Original OriginalGenuity `json:"original"`
 	Feedback UserFeedback    `json:"feedback"`
 }
