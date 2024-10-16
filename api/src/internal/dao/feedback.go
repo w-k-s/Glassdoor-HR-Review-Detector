@@ -21,8 +21,8 @@ func MustMakeFeedbackDao(tx *sql.Tx) dao.FeedbackDao {
 
 func (f feedbackDao) SaveFeedback(ctx context.Context, req types.SubmitGenuityFeedbackRequest) error {
 	result, err := sq.
-		Insert("feedback").Columns("review_id", "pros", "cons", "original_is_genuine", "user_is_genuine", "created_by", "created_at").
-		Values(req.ReviewID, req.Pros, req.Cons, req.Original.IsGenuine, req.Feedback.IsGenuine, req.UserID, "NOW()").
+		Insert("feedback").Columns("review_id", "rating", "pros", "cons", "original_is_genuine", "user_is_genuine", "created_by", "created_at").
+		Values(req.ReviewID, req.OverallRating, req.Pros, req.Cons, req.Original.IsGenuine, req.Feedback.IsGenuine, req.UserID, "DATE()").
 		RunWith(f).ExecContext(ctx)
 
 	if err != nil {
@@ -39,4 +39,46 @@ func (f feedbackDao) SaveFeedback(ctx context.Context, req types.SubmitGenuityFe
 	}
 
 	return nil
+}
+
+func (f feedbackDao) GetTodaysFeedback(ctx context.Context) ([]types.SubmitGenuityFeedbackRequest, error) {
+	rows, err := sq.
+		Select("review_id", "rating", "pros", "cons", "original_is_genuine", "user_is_genuine", "created_by", "created_at").
+		From("feedback").
+		Where(sq.Eq{"created_at": "DATE('now','-1 day')"}).
+		RunWith(f).
+		QueryContext(ctx)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch feedback: %w", err)
+	}
+	defer rows.Close()
+
+	var feedbacks []types.SubmitGenuityFeedbackRequest
+	for rows.Next() {
+		feedback := types.SubmitGenuityFeedbackRequest{
+			Original: types.OriginalGenuity{},
+			Feedback: types.UserFeedback{},
+		}
+
+		err := rows.Scan(
+			&feedback.ReviewID,
+			&feedback.OverallRating,
+			&feedback.Pros,
+			&feedback.Cons,
+			&feedback.Original.IsGenuine,
+			&feedback.Feedback.IsGenuine,
+			&feedback.UserID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("Failed to read row: %w", err)
+		}
+		feedbacks = append(feedbacks, feedback)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed to iterate over results: %w", err)
+	}
+
+	return feedbacks, nil
 }

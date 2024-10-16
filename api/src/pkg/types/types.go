@@ -21,12 +21,13 @@ type GenuityResult struct {
 }
 
 type SubmitGenuityFeedbackRequest struct {
-	UserID   string          `json:"userId"`
-	ReviewID string          `json:"reviewId"`
-	Pros     string          `json:"pros"`
-	Cons     string          `json:"cons"`
-	Original OriginalGenuity `json:"original"`
-	Feedback UserFeedback    `json:"feedback"`
+	UserID        string          `json:"userId" csv:"-"`
+	ReviewID      string          `json:"reviewId" csv:"Review ID"`
+	OverallRating float32         `json:"rating" csv:"Rating"`
+	Pros          string          `json:"pros" csv:"Pros"`
+	Cons          string          `json:"cons" csv:"Cons"`
+	Original      OriginalGenuity `json:"original" csv:"Prediction"`
+	Feedback      UserFeedback    `json:"feedback" csv:"Feedback"`
 }
 
 type OriginalGenuity struct {

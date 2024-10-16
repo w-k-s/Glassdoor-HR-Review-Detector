@@ -1,7 +1,9 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal/dao"
@@ -60,4 +62,16 @@ func (s *Server) submitGenuityFeedback(w http.ResponseWriter, req *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (s *Server) uploadFeedback() {
+	tx, err := s.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		log.Printf("failed to begin transaction. Reason: %q", err)
+	}
+
+	err = s.trainingService.UploadFeedback(context.Background(), dao.MustMakeFeedbackDao(tx), "glassdoor-hr-review-detector", "training-data/feedback.csv")
+	if err != nil {
+		log.Printf("failed to upload feedback. Reason: %q", err)
+	}
 }
