@@ -8,5 +8,5 @@ import (
 
 type FeedbackDao interface {
 	SaveFeedback(context.Context, types.SubmitGenuityFeedbackRequest) error
-	GetTodaysFeedback(context.Context) ([]types.SubmitGenuityFeedbackRequest, error)
+	GetFeedback(context.Context) ([]types.SubmitGenuityFeedbackRequest, error)
 }

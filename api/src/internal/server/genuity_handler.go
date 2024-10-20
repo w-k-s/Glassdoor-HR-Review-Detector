@@ -61,10 +61,12 @@ func (s *Server) submitGenuityFeedback(w http.ResponseWriter, req *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (s *Server) uploadFeedback() {
+	log.Printf("Upload Feedback")
+
 	tx, err := s.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		log.Printf("failed to begin transaction. Reason: %q", err)
@@ -74,4 +76,5 @@ func (s *Server) uploadFeedback() {
 	if err != nil {
 		log.Printf("failed to upload feedback. Reason: %q", err)
 	}
+
 }

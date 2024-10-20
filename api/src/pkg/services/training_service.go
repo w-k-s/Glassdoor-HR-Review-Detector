@@ -3,9 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
-	"io"
 	"log"
-	"strings"
 
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/dao"
 	"github.com/gocarina/gocsv"
@@ -36,32 +34,20 @@ func (t trainingService) UploadFeedback(
 	trainingFileName string,
 ) error {
 	// Fetch feedback in the last 24 hours
-	feedback, err := feedbackDao.GetTodaysFeedback(ctx)
+	feedback, err := feedbackDao.GetFeedback(ctx)
 	if err != nil {
-		return fmt.Errorf("Failed to retrieve today's feedback: %w", err)
+		return fmt.Errorf("Failed to retrieve feedback: %w", err)
 	}
-	log.Printf("Retrieved %d feedback in the last 24 hours", len(feedback))
-
-	// Fetch Training File
-	r, err := t.objectStoreService.Get(trainingFileBucket, trainingFileName)
-	if err != nil {
-		return fmt.Errorf("Failed to fetch training file %q from bucket %q. Reason: %q", trainingFileName, trainingFileBucket, err)
-	}
-
-	content, err := io.ReadAll(r)
-	if err != nil {
-		return fmt.Errorf("Failed to read training file %q. Reason: %q", trainingFileName, err)
-	}
+	log.Printf("Retrieved %d feedback", len(feedback))
 
 	// Append to Training File as CSV without headers
-	rows, err := gocsv.MarshalString(&feedback)
+	csv, err := gocsv.MarshalString(&feedback)
 	if err != nil {
 		return fmt.Errorf("Failed to marshal training data into csv. %w", err)
 	}
 
 	// Put Training File
-	newContent := strings.Join([]string{string(content), rows}, "\n")
-	err = t.objectStoreService.Put(trainingFileBucket, trainingFileName, newContent)
+	err = t.objectStoreService.Put(trainingFileBucket, trainingFileName, csv)
 	if err != nil {
 		return fmt.Errorf("Failed to upload new rows to training file %q in bucket %q. Reason: %q", trainingFileName, trainingFileBucket, err)
 	}

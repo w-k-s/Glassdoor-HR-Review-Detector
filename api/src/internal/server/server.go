@@ -26,14 +26,14 @@ type Server struct {
 	trainingService services.TrainingService
 }
 
-func NewServer(listenAddress, migrationsDirectory string) *Server {
+func NewServer(listenAddress, migrationsDirectory, awsRegion string) *Server {
 	db := dao.Must(sql.Open("sqlite3", ":memory:"))
 	pkg.Must(migrations.Exec(migrationsDirectory, db))
 
 	inMemoryCache := internal.LocalCache()
 	embeddingService := embedding.MustOpenAIEmbeddingService(os.Getenv("OPENAI_API_KEY"), inMemoryCache)
 	inferenceService := inferrence.MustInferenceService(embeddingService, inMemoryCache)
-	s3 := objectstore.MustS3()
+	s3 := objectstore.MustS3(awsRegion)
 
 	return &Server{
 		listenAddress:   listenAddress,
@@ -49,7 +49,7 @@ func (s *Server) Start() error {
 	r.Post("/api/reviews/genuity-check", s.checkReviewsGenuity)
 	r.Post("/api/reviews/genuity-feedback", s.submitGenuityFeedback)
 
-	gocron.Every(1).Day().Do(s.uploadFeedback)
-
+	gocron.Every(10).Seconds().Do(s.uploadFeedback)
+	gocron.Start()
 	return http.ListenAndServe(":3000", r)
 }

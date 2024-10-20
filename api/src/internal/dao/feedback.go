@@ -41,11 +41,10 @@ func (f feedbackDao) SaveFeedback(ctx context.Context, req types.SubmitGenuityFe
 	return nil
 }
 
-func (f feedbackDao) GetTodaysFeedback(ctx context.Context) ([]types.SubmitGenuityFeedbackRequest, error) {
+func (f feedbackDao) GetFeedback(ctx context.Context) ([]types.SubmitGenuityFeedbackRequest, error) {
 	rows, err := sq.
-		Select("review_id", "rating", "pros", "cons", "original_is_genuine", "user_is_genuine", "created_by", "created_at").
+		Select("review_id", "rating", "pros", "cons", "original_is_genuine", "user_is_genuine", "created_by").
 		From("feedback").
-		Where(sq.Eq{"created_at": "DATE('now','-1 day')"}).
 		RunWith(f).
 		QueryContext(ctx)
 
