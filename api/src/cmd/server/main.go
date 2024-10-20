@@ -1,23 +1,14 @@
 package main
 
 import (
-	"flag"
 	"log"
 
 	s "com.github/w-k-s/glassdoor-hr-review-detector/internal/server"
 )
 
 func main() {
-	// TODO: Configurations
-	listenAddress := flag.String("listenAddress", ":3000", "The host and port on which the sever will listen for requests e.g. localhost:3000")
-
-	migrationsDirectory := flag.String("migrationsDirectory", "../../migrations", "Directory containing migrations file")
-
-	awsRegion := flag.String("awsRegion", "ap-south-1", "Bucket Region")
-
-	flag.Parse()
-
-	server := s.NewServer(*listenAddress, *migrationsDirectory, *awsRegion)
-	log.Printf("Server running on port %q", *listenAddress)
+	config := s.ReadConfig()
+	server := s.NewServer(config)
+	log.Printf("Server running on port %q", config.Server.ListenAddress)
 	log.Fatal(server.Start())
 }

@@ -3,7 +3,6 @@ package server
 import (
 	"database/sql"
 	"net/http"
-	"os"
 
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal"
 	"com.github/w-k-s/glassdoor-hr-review-detector/internal/dao"
@@ -24,22 +23,24 @@ type Server struct {
 	db              *sql.DB
 	genuityService  services.GenuityService
 	trainingService services.TrainingService
+	config          *Config
 }
 
-func NewServer(listenAddress, migrationsDirectory, awsRegion string) *Server {
+func NewServer(config *Config) *Server {
 	db := dao.Must(sql.Open("sqlite3", ":memory:"))
-	pkg.Must(migrations.Exec(migrationsDirectory, db))
+	pkg.Must(migrations.Exec(config.Migrations.Directory, db))
 
 	inMemoryCache := internal.LocalCache()
-	embeddingService := embedding.MustOpenAIEmbeddingService(os.Getenv("OPENAI_API_KEY"), inMemoryCache)
-	inferenceService := inferrence.MustInferenceService(embeddingService, inMemoryCache)
-	s3 := objectstore.MustS3(awsRegion)
+	embeddingService := embedding.MustOpenAIEmbeddingService(config.OpenAi.ApiKey, inMemoryCache)
+	inferenceService := inferrence.MustInferenceService(config.Inference.Api.Endpoint, embeddingService, inMemoryCache)
+	s3 := objectstore.MustS3(config.S3.Region)
 
 	return &Server{
-		listenAddress:   listenAddress,
+		listenAddress:   config.Server.ListenAddress,
 		db:              db,
 		genuityService:  services.MustGenuityService(inferenceService),
 		trainingService: services.MustTrainingService(s3),
+		config:          config,
 	}
 }
 
@@ -49,7 +50,7 @@ func (s *Server) Start() error {
 	r.Post("/api/reviews/genuity-check", s.checkReviewsGenuity)
 	r.Post("/api/reviews/genuity-feedback", s.submitGenuityFeedback)
 
-	gocron.Every(10).Seconds().Do(s.uploadFeedback)
+	gocron.Every(uint64(s.config.Feedback.Upload.Frequency.Hours)).Hours().Do(s.uploadFeedback)
 	gocron.Start()
-	return http.ListenAndServe(":3000", r)
+	return http.ListenAndServe(s.listenAddress, r)
 }

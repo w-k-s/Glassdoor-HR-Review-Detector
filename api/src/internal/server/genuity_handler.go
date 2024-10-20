@@ -65,14 +65,14 @@ func (s *Server) submitGenuityFeedback(w http.ResponseWriter, req *http.Request)
 }
 
 func (s *Server) uploadFeedback() {
-	log.Printf("Upload Feedback")
+	log.Printf("Running Upload Feedback Job")
 
 	tx, err := s.db.BeginTx(context.Background(), nil)
 	if err != nil {
 		log.Printf("failed to begin transaction. Reason: %q", err)
 	}
 
-	err = s.trainingService.UploadFeedback(context.Background(), dao.MustMakeFeedbackDao(tx), "glassdoor-hr-review-detector", "training-data/feedback.csv")
+	err = s.trainingService.UploadFeedback(context.Background(), dao.MustMakeFeedbackDao(tx), s.config.S3.Bucket, "training-data/feedback.csv")
 	if err != nil {
 		log.Printf("failed to upload feedback. Reason: %q", err)
 	}

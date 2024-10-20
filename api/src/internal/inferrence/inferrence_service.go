@@ -23,14 +23,20 @@ type predictionResponse struct {
 }
 
 type inferenceService struct {
-	embeddingService services.EmbeddingsService
-	cache            internal.Cache
+	inferenceApiEndpoint string
+	embeddingService     services.EmbeddingsService
+	cache                internal.Cache
 }
 
 func MustInferenceService(
+	inferenceApiEndpoint string,
 	embeddingService services.EmbeddingsService,
 	cache internal.Cache,
 ) services.InferenceService {
+	if len(inferenceApiEndpoint) == 0 {
+		log.Panic("inferenceApiEndpoint is not a valid url")
+	}
+
 	if embeddingService == nil {
 		log.Panic("Embedding Service is nil")
 	}
@@ -40,8 +46,9 @@ func MustInferenceService(
 	}
 
 	return &inferenceService{
-		embeddingService: embeddingService,
-		cache:            cache,
+		inferenceApiEndpoint: inferenceApiEndpoint,
+		embeddingService:     embeddingService,
+		cache:                cache,
 	}
 }
 
@@ -89,8 +96,7 @@ func (svc inferenceService) GetGenuity(ctx context.Context, reviews []types.Revi
 			Instances: x,
 		})
 
-		// TODO: Externalise API Endpoint
-		resp, err := http.Post("http://localhost:8501/v1/models/glassdoor_hr_review_detector:predict", "application/json", bytes.NewReader(jsonData))
+		resp, err := http.Post(svc.inferenceApiEndpoint, "application/json", bytes.NewReader(jsonData))
 		if err != nil {
 			return nil, fmt.Errorf("inference API Error: %w", err)
 		}
