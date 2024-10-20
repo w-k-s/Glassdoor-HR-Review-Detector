@@ -28,6 +28,8 @@ func RESTEndpoint(api RESTHandler) http.HandlerFunc {
 			return
 		}
 
+		log.Printf("%d %s %s %s", status, r.Method, r.RequestURI, err)
+
 		problemDetail := pd.New(
 			pd.Untyped,
 			pd.WithValidateLevel(pd.LStandard),
