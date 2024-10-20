@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -10,58 +11,46 @@ import (
 	"com.github/w-k-s/glassdoor-hr-review-detector/pkg/types"
 )
 
-func (s *Server) checkReviewsGenuity(w http.ResponseWriter, req *http.Request) {
+func (s *Server) checkReviewsGenuity(req *http.Request) (any, error, int) {
 	var request types.CheckReviewsGenuityRequest
 
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+		return nil, fmt.Errorf("Invalid request body"), http.StatusBadRequest
 	}
 
 	response, err := s.genuityService.CheckReviewGenuity(req.Context(), request)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err, http.StatusInternalServerError
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Error encoding response", http.StatusInternalServerError)
-		return
-	}
+	return response, nil, http.StatusOK
 }
 
-func (s *Server) submitGenuityFeedback(w http.ResponseWriter, req *http.Request) {
+func (s *Server) submitGenuityFeedback(req *http.Request) (any, error, int) {
 	var request types.SubmitGenuityFeedbackRequest
 
 	if err := json.NewDecoder(req.Body).Decode(&request); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
+		return nil, fmt.Errorf("Invalid request body"), http.StatusBadRequest
 	}
 
 	tx, err := s.db.BeginTx(req.Context(), nil)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err, http.StatusInternalServerError
 	}
 	defer tx.Rollback()
 
 	feedbackDao := dao.MustMakeFeedbackDao(tx)
 	err = s.genuityService.SubmitGenuityFeedback(req.Context(), feedbackDao, request)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err, http.StatusInternalServerError
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err, http.StatusInternalServerError
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
+	return nil, nil, http.StatusCreated
 }
 
 func (s *Server) uploadFeedback() {

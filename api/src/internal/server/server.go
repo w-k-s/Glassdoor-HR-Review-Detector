@@ -47,8 +47,9 @@ func NewServer(config *Config) *Server {
 func (s *Server) Start() error {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	r.Post("/api/reviews/genuity-check", s.checkReviewsGenuity)
-	r.Post("/api/reviews/genuity-feedback", s.submitGenuityFeedback)
+	r.Use(middleware.Recoverer)
+	r.Post("/api/reviews/genuity-check", RESTEndpoint(s.checkReviewsGenuity))
+	r.Post("/api/reviews/genuity-feedback", RESTEndpoint(s.submitGenuityFeedback))
 
 	gocron.Every(uint64(s.config.Feedback.Upload.Frequency.Hours)).Hours().Do(s.uploadFeedback)
 	gocron.Start()
