@@ -11,7 +11,7 @@ on:
 
 env:
   MODEL_BUCKET_NAME: glassdoor-hr-review-detector/models
-  DOCKERHUB_REPOSITORY: glassdoor-hr-review-detector
+  DOCKERHUB_REPOSITORY: glassdoor-hr-review-detector-inference
   DOCKERHUB_NAMESPACE: wkas
 
 jobs:

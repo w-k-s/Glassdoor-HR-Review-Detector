@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+
+  api:
+    image: wkas/glassdoor-hr-review-detector/api
+    container_name: api
+    restart: always
+    networks:
+      - app
+    ports:
+      - "3000:3000"
+    environment:
+      GDHR_INFERENCE_API_ENDPOINT: http://inference:8501/v1/models/glassdoor_hr_review_detector:predict
+    depends_on:
+      - inference
+
+  inference:
+    image: wkas/glassdoor-hr-review-detector/inference:1
+    container_name: inference
+    restart: always
+    networks:
+      - app
+    ports:
+      - "8501:8501"
+
+networks:
+  app:

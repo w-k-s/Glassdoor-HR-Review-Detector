@@ -1,0 +1,42 @@
+name: Publish API Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: The Image Version
+        required: true
+        default: "1"
+
+env:
+  DOCKERHUB_REPOSITORY: glassdoor-hr-review-detector-api
+  DOCKERHUB_NAMESPACE: wkas
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api/src
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set IMAGE_TAG environment variable
+        run: echo "IMAGE_TAG=$DOCKERHUB_NAMESPACE/$DOCKERHUB_REPOSITORY:${{ github.event.inputs.version }}" >> $GITHUB_ENV
+
+      - name: Build Docker Image
+        run: |
+          docker buildx build -t "$IMAGE_TAG" .
+
+      - name: Push Image to Docker Hub
+        run: |
+          docker push "$IMAGE_TAG"
