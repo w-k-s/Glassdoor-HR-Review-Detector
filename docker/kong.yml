@@ -1,0 +1,65 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: glassdoor-hr-review-detector
+    url: http://api:3000
+    connect_timeout: 60000
+    protocol: http
+    read_timeout: 60000
+    port: 80
+    retries: 5
+    write_timeout: 60000
+    routes:
+      - name: check-genuity
+        methods:
+          - "POST"
+        paths:
+          - "/api/reviews/genuity-check"
+        protocols:
+          - http
+        regex_priority: 0
+        strip_path: false
+        preserve_host: false
+      - name: submit-feedback
+        methods:
+          - "POST"
+        paths:
+          - "/api/reviews/genuity-feedback"
+        protocols:
+          - http
+        regex_priority: 0
+        strip_path: false
+        preserve_host: false
+
+plugins:
+  - name: key-auth
+    service: glassdoor-hr-review-detector
+    config:
+      key_names:
+        - apikey
+      key_in_header: true
+      key_in_query: false
+      key_in_body: false
+  - name: rate-limiting
+    service: glassdoor-hr-review-detector
+    consumer: admin
+    config:
+      second: 10
+      policy: local
+  - name: rate-limiting
+    service: glassdoor-hr-review-detector
+    consumer: client
+    config:
+      second: 5
+      policy: local
+
+# Hard-coded API Keys because using db-less mode for PoC
+consumers:
+  - username: admin
+    keyauth_credentials:
+      - key: admin
+
+  - username: client
+    keyauth_credentials:
+      - key: client
