@@ -1,0 +1,59 @@
+{
+    "manifest_version": 2,
+    "name": "Glassdoor Review Filter",
+    "version": "1.0.0",
+    "description": "Identifies and filters potentially fake reviews on Glassdoor",
+    "permissions": [
+        "*://*.glassdoor.com/*",
+        "storage"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.glassdoor.com/Reviews/*"
+            ],
+            "exclude_matches": [
+                "*://*.glassdoor.com/Reviews/index.htm"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        },
+        "default_title": "Glassdoor Review Filter"
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "review-filter@yourdomain.com",
+            "strict_min_version": "57.0"
+        }
+    },
+    "content_security_policy": "script-src 'self'; object-src 'self'",
+    "web_accessible_resources": [
+        "icons/*.png",
+        "styles.css"
+    ]
+}
