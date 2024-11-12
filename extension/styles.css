@@ -1,0 +1,13 @@
+.flash-message {
+    background-color: salmon;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.flash-message a {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-right: 10px;
+}

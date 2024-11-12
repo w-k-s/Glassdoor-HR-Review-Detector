@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "Glassdoor Review Filter",
+    "version": "1.0",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "http://localhost:8000/*"
+    ],
+    "background": {
+        "service_worker": "worker.js"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.glassdoor.com/Reviews/*"
+            ],
+            "exclude_matches": [
+                "https://www.glassdoor.com/Reviews/index.htm"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ]
+        }
+    ]
+}

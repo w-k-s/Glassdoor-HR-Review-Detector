@@ -1,36 +1,43 @@
 {
-    "name": "review-filter-extension",
-    "version": "1.0.0",
-    "scripts": {
-        "build": "webpack --config webpack.config.js",
-        "build:local": "webpack --config webpack.config.js --env local",
-        "build:local:chrome": "webpack --config webpack.config.js --env local --env browser=chrome",
-        "build:local:firefox": "webpack --config webpack.config.js --env local --env browser=firefox",
-        "build:dev": "webpack --config webpack.config.js --env development",
-        "build:dev:chrome": "webpack --config webpack.config.js --env development --env browser=chrome",
-        "build:dev:firefox": "webpack --config webpack.config.js --env development --env browser=firefox",
-        "build:prod": "webpack --config webpack.config.js --env production",
-        "build:prod:chrome": "webpack --config webpack.config.js --env production --env browser=chrome",
-        "build:prod:firefox": "webpack --config webpack.config.js --env production --env browser=firefox",
-        "watch": "webpack --config webpack.config.js --env local --watch",
-        "watch:chrome": "webpack --config webpack.config.js --env local --env browser=chrome --watch",
-        "watch:firefox": "webpack --config webpack.config.js --env local --env browser=firefox --watch"
-    },
-    "dependencies": {},
-    "devDependencies": {
-        "@babel/core": "^7.22.0",
-        "@babel/preset-env": "^7.22.0",
-        "babel-loader": "^9.1.2",
-        "cross-env": "^7.0.3",
-        "dotenv": "^16.0.3",
-        "jest": "^29.5.0",
-        "jest-puppeteer": "^9.0.0",
-        "puppeteer": "^19.11.0",
-        "webpack": "^5.85.0",
-        "webpack-cli": "^5.1.1",
-        "copy-webpack-plugin": "^11.0.0",
-        "css-loader": "^6.8.1",
-        "style-loader": "^3.3.3",
-        "rimraf": "^5.0.1"
-    }
+  "name": "glassdoor",
+  "version": "1.0.0",
+  "description": "Extensions that hides Glassdoor reviews suspected of being written by HR",
+  "main": "jest.config.e2e.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "build:local": "webpack --config webpack.config.js --env local",
+    "build:local:chrome": "webpack --config webpack.config.js --env local --env browser=chrome",
+    "build:local:firefox": "webpack --config webpack.config.js --env local --env browser=firefox",
+    "build:dev": "webpack --config webpack.config.js --env development",
+    "build:dev:chrome": "webpack --config webpack.config.js --env development --env browser=chrome",
+    "build:dev:firefox": "webpack --config webpack.config.js --env development --env browser=firefox",
+    "build:prod": "webpack --config webpack.config.js --env production",
+    "build:prod:chrome": "webpack --config webpack.config.js --env production --env browser=chrome",
+    "build:prod:firefox": "webpack --config webpack.config.js --env production --env browser=firefox",
+    "watch": "webpack --config webpack.config.js --env local --watch",
+    "watch:chrome": "webpack --config webpack.config.js --env local --env browser=chrome --watch",
+    "watch:firefox": "webpack --config webpack.config.js --env local --env browser=firefox --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "babel-loader": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.3",
+    "jest": "^29.5.0",
+    "jest-puppeteer": "^9.0.0",
+    "puppeteer": "^19.11.0",
+    "webpack": "^5.85.0",
+    "webpack-cli": "^5.1.1",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "style-loader": "^3.3.3",
+    "rimraf": "^5.0.1"
+  },
+  "author": "w-k-s",
+  "license": "ISC"
 }
