@@ -55,6 +55,7 @@ func MustInferenceService(
 func (svc inferenceService) GetGenuity(ctx context.Context, reviews []types.Review) ([]types.GenuityResult, error) {
 	genuityResults := make([]types.GenuityResult, 0)
 	newReviews := make([]types.Review, 0)
+
 	for _, review := range reviews {
 		if result, ok := svc.cache.Get(review.ID); ok {
 			genuityResults = append(genuityResults, result.(types.GenuityResult))
@@ -65,10 +66,13 @@ func (svc inferenceService) GetGenuity(ctx context.Context, reviews []types.Revi
 
 	if len(newReviews) > 0 {
 		embeddingRequestInputs := make([]string, len(newReviews)*2)
-		for i, d := range newReviews {
+		i := 0
+		for _, d := range newReviews {
 			embeddingRequestInputs[i] = d.Pros
 			embeddingRequestInputs[i+1] = d.Cons
 			i += 2
+
+			fmt.Printf("embeddingRequestInputs[%d]: %v\n\n\n", i, embeddingRequestInputs)
 		}
 
 		embeddings, err := svc.embeddingService.GetEmbeddings(ctx, embeddingRequestInputs, vectorDimensions)
